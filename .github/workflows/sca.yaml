@@ -29,7 +29,7 @@ jobs:
         with:
           project: 'devsecops-scans-examples'
           path: '.'
-          format: 'HTML,JSON,SARIF'
+          format: 'ALL'
           out: 'reports'
           args: >
             --enableRetired
@@ -43,7 +43,7 @@ jobs:
         with:
           project: 'devsecops-scans-examples'
           path: '.'
-          format: 'HTML,JSON,SARIF'
+          format: 'ALL'
           out: 'reports'
           args: >
             --enableRetired
