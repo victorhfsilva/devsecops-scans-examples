@@ -15,13 +15,15 @@ jobs:
     permissions:
       contents: read
       security-events: write
+    env:
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Run OWASP Dependency-Check (with NVD API Key)
-        if: ${{ secrets.NVD_API_KEY != '' }}
+        if: env.NVD_API_KEY != ''
         uses: dependency-check/Dependency-Check_Action@main
         id: depcheck-with-key
         with:
@@ -35,7 +37,7 @@ jobs:
             --nvdApiKey ${{ secrets.NVD_API_KEY }}
       
       - name: Run OWASP Dependency-Check (without NVD API Key)
-        if: ${{ secrets.NVD_API_KEY == '' }}
+        if: env.NVD_API_KEY == ''
         uses: dependency-check/Dependency-Check_Action@main
         id: depcheck-without-key
         with:
