@@ -1,0 +1,27 @@
+{
+  "name": "devsecops-scans-examples",
+  "version": "1.0.0",
+  "description": "Exemplo para testar SCA com OWASP Dependency-Check",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["security", "sca", "devsecops"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "4.17.1",
+    "lodash": "4.17.19",
+    "axios": "0.21.1",
+    "minimist": "1.2.5",
+    "jquery": "3.4.1",
+    "moment": "2.29.1",
+    "request": "2.88.0",
+    "underscore": "1.12.0"
+  },
+  "devDependencies": {
+    "webpack": "4.46.0",
+    "node-forge": "0.10.0"
+  }
+}

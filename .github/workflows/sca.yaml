@@ -1,0 +1,56 @@
+name: Security Scans
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sundays at midnight
+
+jobs:
+  sca-dependency-check:
+    name: SCA - OWASP Dependency-Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        id: depcheck
+        with:
+          project: 'devsecops-scans-examples'
+          path: '.'
+          format: 'HTML,JSON,SARIF'
+          out: 'reports'
+          args: >
+            --enableRetired
+            --enableExperimental
+            --nvdApiKey ${{ secrets.NVD_API_KEY }}
+      
+      - name: Upload Dependency-Check results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: reports/
+      
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: reports/dependency-check-report.sarif
+      
+      - name: Check for vulnerabilities
+        run: |
+          if [ -f reports/dependency-check-report.json ]; then
+            VULNERABILITIES=$(jq '.dependencies[].vulnerabilities | length' reports/dependency-check-report.json | awk '{s+=$1} END {print s}')
+            echo "Total vulnerabilities found: $VULNERABILITIES"
+            if [ "$VULNERABILITIES" -gt 0 ]; then
+              echo "::warning::Found $VULNERABILITIES vulnerabilities in dependencies"
+            fi
+          fi
