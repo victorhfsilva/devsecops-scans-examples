@@ -20,9 +20,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Run OWASP Dependency-Check
+      - name: Run OWASP Dependency-Check (with NVD API Key)
+        if: ${{ secrets.NVD_API_KEY != '' }}
         uses: dependency-check/Dependency-Check_Action@main
-        id: depcheck
+        id: depcheck-with-key
         with:
           project: 'devsecops-scans-examples'
           path: '.'
@@ -33,8 +34,22 @@ jobs:
             --enableExperimental
             --nvdApiKey ${{ secrets.NVD_API_KEY }}
       
+      - name: Run OWASP Dependency-Check (without NVD API Key)
+        if: ${{ secrets.NVD_API_KEY == '' }}
+        uses: dependency-check/Dependency-Check_Action@main
+        id: depcheck-without-key
+        with:
+          project: 'devsecops-scans-examples'
+          path: '.'
+          format: 'HTML,JSON,SARIF'
+          out: 'reports'
+          args: >
+            --enableRetired
+            --enableExperimental
+      
       - name: Upload Dependency-Check results
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: dependency-check-report
           path: reports/
@@ -42,15 +57,34 @@ jobs:
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true
         with:
           sarif_file: reports/dependency-check-report.sarif
       
       - name: Check for vulnerabilities
+        if: always()
         run: |
           if [ -f reports/dependency-check-report.json ]; then
-            VULNERABILITIES=$(jq '.dependencies[].vulnerabilities | length' reports/dependency-check-report.json | awk '{s+=$1} END {print s}')
+            VULNERABILITIES=$(jq -r '[.dependencies[]?.vulnerabilities[]?] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
             echo "Total vulnerabilities found: $VULNERABILITIES"
-            if [ "$VULNERABILITIES" -gt 0 ]; then
+            
+            if [ "$VULNERABILITIES" != "0" ] && [ "$VULNERABILITIES" != "" ]; then
               echo "::warning::Found $VULNERABILITIES vulnerabilities in dependencies"
+              
+              # Show summary by severity
+              CRITICAL=$(jq -r '[.dependencies[]?.vulnerabilities[]? | select(.severity=="CRITICAL")] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
+              HIGH=$(jq -r '[.dependencies[]?.vulnerabilities[]? | select(.severity=="HIGH")] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
+              MEDIUM=$(jq -r '[.dependencies[]?.vulnerabilities[]? | select(.severity=="MEDIUM")] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
+              LOW=$(jq -r '[.dependencies[]?.vulnerabilities[]? | select(.severity=="LOW")] | length' reports/dependency-check-report.json 2>/dev/null || echo "0")
+              
+              echo "📊 Severity Breakdown:"
+              echo "  🔴 Critical: $CRITICAL"
+              echo "  🟠 High: $HIGH"
+              echo "  🟡 Medium: $MEDIUM"
+              echo "  🟢 Low: $LOW"
+            else
+              echo "✅ No vulnerabilities found!"
             fi
+          else
+            echo "⚠️ Report file not found"
           fi

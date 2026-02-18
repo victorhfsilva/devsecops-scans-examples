@@ -2,7 +2,7 @@
 
 Este repositório contém exemplos completos de configurações de segurança para pipelines DevSecOps, demonstrando as melhores práticas de segurança em todas as fases do ciclo de desenvolvimento.
 
-## 🎯 Objetivo
+## Objetivo
 
 Demonstrar a implementação de verificações de segurança automatizadas em um pipeline CI/CD completo, incluindo:
 
@@ -15,13 +15,12 @@ Demonstrar a implementação de verificações de segurança automatizadas em um
 - **Assinatura de Artefatos**: Garantia de integridade com Cosign/Sigstore
 - **Deploy Seguro**: Pipeline completo de deployment com validações de segurança
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 .
 ├── .github/
 │   └── workflows/
-│       ├── security.yaml         # Pipeline de verificações de segurança
 │       ├── sast.yaml            # Análise estática de código
 │       ├── dast.yaml            # Testes dinâmicos
 │       ├── secrets.yaml         # Detecção de secrets
@@ -37,10 +36,10 @@ Demonstrar a implementação de verificações de segurança automatizadas em um
 └── README.md                    # Este arquivo
 ```
 
-## 🚀 Como Funciona
+## Como Funciona
 
 Os workflows de segurança são executados automaticamente quando:
-- Código é enviado para as branches `main` ou `develop`
+- Código é enviado para as branches `main`
 - Um Pull Request é criado
 - Semanalmente aos domingos (scans agendados)
 - Em cada release (para assinatura de artefatos)
@@ -54,7 +53,7 @@ Os workflows de segurança são executados automaticamente quando:
 - Integração com GitHub Security
 
 ### 2. SAST - Static Application Security Testing
-**Ferramentas**: Semgrep, CodeQL, SonarQube
+**Ferramenta**: Semgrep
 - Detecta vulnerabilidades no código-fonte
 - Identifica código inseguro, SQL Injection, XSS, etc.
 - Análise de qualidade de código
@@ -66,19 +65,19 @@ Os workflows de segurança são executados automaticamente quando:
 - Simula ataques reais
 
 ### 4. Secret Scanning
-**Ferramentas**: GitLeaks, TruffleHog
+**Ferramentas**: GitLeaks
 - Detecta credenciais hardcoded
 - Identifica tokens, API keys, senhas
 - Previne vazamento de secrets
 
 ### 5. IaC Scanning
-**Ferramentas**: Checkov, Terrascan, Trivy
+**Ferramentas**: Trivy
 - Analisa arquivos Terraform, CloudFormation, Kubernetes
 - Detecta misconfigurations de segurança
 - Valida compliance com políticas
 
 ### 6. Container Scanning
-**Ferramentas**: Trivy, Grype, Snyk
+**Ferramentas**: Trivy
 - Escaneia imagens Docker
 - Detecta CVEs em pacotes do sistema
 - Verifica configurações inseguras
@@ -94,7 +93,7 @@ Os workflows de segurança são executados automaticamente quando:
 - Blue-Green ou Canary deployment
 - Rollback automático em caso de problemas
 
-## ⚠️ Vulnerabilidades Intencionais
+## Vulnerabilidades Intencionais
 
 Este projeto contém vulnerabilidades propositais para demonstrar as ferramentas:
 
@@ -121,7 +120,7 @@ Este projeto contém vulnerabilidades propositais para demonstrar as ferramentas
 - Criptografia desabilitada
 - Permissões excessivas
 
-**⚠️ ATENÇÃO**: Este é um projeto de exemplo para fins educacionais. Nunca use estas configurações em produção!
+**ATENÇÃO**: Este é um projeto de exemplo para fins educacionais. Nunca use estas configurações em produção!
 
 ## Executando o Projeto
 
@@ -133,7 +132,7 @@ npm install
 npm start
 ```
 
-## 📊 Verificando Resultados
+## Verificando Resultados
 
 ### GitHub Actions
 1. Acesse a aba **Actions** no GitHub
@@ -156,7 +155,7 @@ Cada ferramenta gera relatórios específicos:
 - `dependency-check-report.json` - Dados estruturados
 - `dependency-check-report.sarif` - GitHub Security
 
-**SAST (Semgrep/CodeQL)**
+**SAST (Semgrep)**
 - `semgrep-results.sarif` - Vulnerabilidades de código
 - `codeql-results.sarif` - Análise do CodeQL
 
@@ -167,13 +166,10 @@ Cada ferramenta gera relatórios específicos:
 **Secret Scanning (GitLeaks)**
 - `gitleaks-report.json` - Secrets detectados
 
-**IaC Scanning (Checkov)**
-- `checkov-report.sarif` - Misconfigurations
-
-**Container Scanning (Trivy)**
+**IaC and Container Scanning (Trivy)**
 - `trivy-results.sarif` - Vulnerabilidades da imagem
 
-## 🔐 Configuração de Secrets
+## Configuração de Secrets
 
 Configure os seguintes secrets no GitHub:
 
@@ -187,7 +183,7 @@ DEPLOY_KEY            # Chave SSH para deploy
 SLACK_WEBHOOK_URL     # Webhook para notificações
 ```
 
-## 🚢 Pipeline DevSecOps Completo
+## Pipeline DevSecOps Completo
 
 ```mermaid
 graph LR
@@ -206,7 +202,7 @@ graph LR
     L -->|No| N[Rollback]
 ```
 
-## 🛠️ Melhorias e Personalizações
+## Melhorias e Personalizações
 
 ### Gates de Qualidade
 - Configure thresholds para falhar o build
