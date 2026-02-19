@@ -10,7 +10,7 @@ on:
 
 jobs:
   dast-zap:
-    name: DAST - ZAP Baseline Scan
+    name: DAST - ZAP Baseline + Active Scan
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -62,6 +62,18 @@ jobs:
             -x zap-report.xml \
             -m 5 || true
 
+      - name: Run OWASP ZAP Active Scan (XSS Focus)
+        run: |
+          docker run --rm --network host -u root \
+            -v "${{ github.workspace }}/.zap-reports:/zap/wrk/:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-full-scan.py \
+            -t "http://127.0.0.1:3000/vuln/xss?q=test" \
+            -J zap-active-report.json \
+            -r zap-active-report.html \
+            -x zap-active-report.xml \
+            -m 3 || true
+
       - name: Upload ZAP report artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -71,6 +83,9 @@ jobs:
             .zap-reports/zap-report.html
             .zap-reports/zap-report.json
             .zap-reports/zap-report.xml
+            .zap-reports/zap-active-report.html
+            .zap-reports/zap-active-report.json
+            .zap-reports/zap-active-report.xml
             app.log
 
       - name: Stop application
