@@ -1,0 +1,76 @@
+name: DAST - OWASP ZAP
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 1 * * 0' # Weekly on Sundays at 01:00
+
+jobs:
+  dast-zap:
+    name: DAST - ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start application
+        run: |
+          npm start > app.log 2>&1 &
+          echo $! > app.pid
+
+      - name: Wait for application to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:3000/ > /dev/null; then
+              echo "Application is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Application did not start in time"
+          cat app.log || true
+          exit 1
+
+      - name: Run OWASP ZAP Baseline Scan
+        run: |
+          docker run --rm --network host \
+            -v "${{ github.workspace }}:/zap/wrk/:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t http://127.0.0.1:3000 \
+            -J zap-report.json \
+            -r zap-report.html \
+            -x zap-report.xml \
+            -m 5 || true
+
+      - name: Upload ZAP report artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: |
+            zap-report.html
+            zap-report.json
+            zap-report.xml
+            app.log
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill "$(cat app.pid)" || true
+          fi
