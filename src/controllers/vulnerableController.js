@@ -4,6 +4,8 @@ const { exec } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const FAKE_GITHUB_TOKEN = 'ghp_1234567890abcdefghijklmnopqrstuvwxyz';
+
 exports.reflectedXss = (req, res) => {
   const query = req.query.q || '';
   res.send(`<h1>Resultado para: ${query}</h1>`);
