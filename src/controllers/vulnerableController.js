@@ -5,6 +5,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const FAKE_GITHUB_TOKEN = 'ghp_1234567890abcdefghijklmnopqrstuvwxyz';
+const FAKE_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDgFakeKeyMaterial
+q2v9R4jLk2tP8mQqX4rj9K9xQfWm0z0Gkq4Xb2m9SxA0V8k3uK7y2pQ9a5v3n1c8
+4sN9rQ3mYk2xW8pL0sD9vJ3kL1mN8hT2pQ4rS7uV5wX2yZ6aB9cD3eF7gH1jK5lM
+2nP6qR9sT3uV7wX1yZ5aC8dE2fG6hI0jK4lM8nP2qR6sT0uV4wX8yZ2aB5cD9eF3
+-----END PRIVATE KEY-----`;
 
 exports.reflectedXss = (req, res) => {
   const query = req.query.q || '';
